@@ -5,7 +5,7 @@ import tkinter as tk
 from tkinter import messagebox
 
 class cube(object):
-    rows = 0
+    rows = 20
     w = 500
     def __init__(self, start, dirnx=1, dirny=0, color=(255, 0, 0)):
         self.pos = start
@@ -16,7 +16,7 @@ class cube(object):
     def move(self, dirnx, dirny):
         self.dirnx = dirnx
         self.dirny = dirny
-        self.pos(self.pos[0] + self.dirnx, self.pos[1] + self.dirny)
+        self.pos = (self.pos[0] + self.dirnx, self.pos[1] + self.dirny)
 
     def draw(self, surface, eyes=False):
         dis = self.w // self.rows
@@ -32,7 +32,6 @@ class cube(object):
             pygame.draw.circle(surface, (0, 0, 0), circleMiddle, radius)
             pygame.draw.circle(surface, (0, 0, 0), circleMiddle2, radius)
 
-            
 
 class snake(object):
     body = []
@@ -86,13 +85,29 @@ class snake(object):
                 elif c.dirny == -1 and c.pos[1] <= 0: c.pos = (c.pos[0], c.rows - 1)
                 else: c.move(c.dirnx, c.dirny)
 
-
-
     def reset(self, pos):
-        pass
+        self.head = cube(pos)
+        self.body = []
+        self.body.append(self.head)
+        self.turns = {}
+        self.dirnx = 0
+        self.dirny = 1
 
-    def addCube(self, surface):
-        pass
+    def addCube(self):
+        tail = self.body[-1]
+        dx, dy = tail.dirnx, tail.dirny
+
+        if dx == 1 and dy == 0:
+            self.body.append(cube((tail.pos[0] - 1, tail.pos[1])))
+        elif dx == -1 and dy == 0:
+            self.body.append(cube((tail.pos[0] + 1, tail.pos[1])))
+        elif dx == 0 and dy == 1:
+            self.body.append(cube((tail.pos[0], tail.pos[1] - 1)))
+        elif dx == 0 and dy == -1:
+            self.body.append(cube((tail.pos[0], tail.pos[1] + 1)))
+
+        self.body[-1].dirnx = dx
+        self.body[-1].dirny = dy
 
     def draw(self, surface):
         for i, c in enumerate(self.body):
@@ -113,23 +128,43 @@ def drawGrid (w, rows, surface):
         pygame.draw.line(surface, (255, 255, 255), (0, y), (w, y))
 
 def redrawWindow(surface):
-    global rows, width
+    global rows, width, s, snack
     surface.fill((0, 0, 0))
+    s.draw(surface)
+    snack.draw(surface)
     drawGrid(width, rows, surface)
     pygame.display.update()
 
-def randomSnack(rows, items):
-    pass
+def randomSnack(rows, item):
+    positions = item.body
+    
+    while True:
+        x = random.randrange(rows)
+        y = random.randrange(rows)
+        if len(list(filter(lambda z:z.pos == (x, y), positions))) > 0:
+            continue
+        else:
+            break
+
+        return (x, y)
 
 def message_box(subject, content):
-    pass
+    root = tk.TK()
+    root.attributes("-topmost", True)
+    root.withdraw()
+    messagebox.showinfo(subject, content)
+    try:
+        root.destroy()
+    except:
+        pass
 
 def main():
-    global width, rows
+    global width, rows, s, snack
     width = 500
     rows = 20
     win = pygame.display.set_mode((width, width))
     s = snake((255, 0, 0) (10, 10))
+    snack = cube(randomSnack(rows, s), color = (0, 255, 0))
     flag = True
 
     clock = pygame.time.Clock()
@@ -137,7 +172,18 @@ def main():
     while flag:
         pygame.time.delay(50)
         clock.tick(10)
-        redrawWindow(win)
+        if s.body[0].pos == snack.pos:
+            s.addCube()
+            snack = cube(randomSnack(rows, s), color = (0, 255, 0))
 
+            for x in range(len(s.body)):
+                if s.body[x].pos in list(map(lambda z:z.pos, s.body[x + 1:])):
+                    print('Score: ', len(s.body))
+                    message_box('You lost!', 'Play again...' )
+                    s.reset((10, 10))
+                    break
+    
+        redrawWindow(win)
+    pass
 
 main()
