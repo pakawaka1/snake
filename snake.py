@@ -146,7 +146,7 @@ def randomSnack(rows, item):
         else:
             break
 
-        return (x, y)
+    return (x, y)
 
 def message_box(subject, content):
     root = tk.TK()
