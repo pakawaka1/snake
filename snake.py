@@ -7,7 +7,7 @@ from tkinter import messagebox
 class cube(object):
     rows = 20
     w = 500
-    def __init__(self, start, dirnx=1, dirny=0, color=(255, 0, 0)):
+    def __init__(self, start, dirnx = 1, dirny = 0, color=(255, 0, 0)):
         self.pos = start
         self.dirnx = 1
         self.dirny = 0
@@ -18,7 +18,7 @@ class cube(object):
         self.dirny = dirny
         self.pos = (self.pos[0] + self.dirnx, self.pos[1] + self.dirny)
 
-    def draw(self, surface, eyes=False):
+    def draw(self, surface, eyes = False):
         dis = self.w // self.rows
         i = self.pos[0]
         j = self.pos[1]
@@ -163,7 +163,7 @@ def main():
     width = 500
     rows = 20
     win = pygame.display.set_mode((width, width))
-    s = snake((255, 0, 0) (10, 10))
+    s = snake((255,0, 0), (10, 10))
     snack = cube(randomSnack(rows, s), color = (0, 255, 0))
     flag = True
 
@@ -172,6 +172,7 @@ def main():
     while flag:
         pygame.time.delay(50)
         clock.tick(10)
+        s.move()
         if s.body[0].pos == snack.pos:
             s.addCube()
             snack = cube(randomSnack(rows, s), color = (0, 255, 0))
